@@ -4,48 +4,81 @@ import { FontAwesome5 } from '@expo/vector-icons';
 import WebSocket from 'react-native-websocket';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
-import { insertList } from '../../Api';
+import { insertData } from '../../Api';
 
+/**
+ * Componente principal para la pantalla de inicio.
+ * Muestra los datos de temperatura, humedad, detección de objetos y distancia del objeto.
+ * Permite guardar los datos y ver la lista de datos guardados.
+ */
 export default function HomeScreen() {
-  const [temperature, setTemperature] = useState('0');
-  const [humidity, setHumidity] = useState('0');
-  const [objectDetected, setObjectDetected] = useState(false);
-  const [objectDistance, setObjectDistance] = useState(0);
+  const [temperature, setTemperature] = useState('0'); // Estado para la temperatura
+  const [humidity, setHumidity] = useState('0'); // Estado para la humedad
+  const [objectDetected, setObjectDetected] = useState(false); // Estado para la detección de objetos
+  const [objectDistance, setObjectDistance] = useState(0); // Estado para la distancia del objeto
   const navigation = useNavigation();
 
   useEffect(() => {
+    // Efecto de carga inicial, no realiza ninguna acción
   }, []);
 
+  /**
+   * Maneja los datos recibidos del WebSocket.
+   * Actualiza los estados de temperatura, humedad, detección de objetos y distancia del objeto.
+   * @param {Object} message - Mensaje recibido del WebSocket.
+   */
   const handleData = (message) => {
     const data = message.data.split(',');
     setTemperature(data[0]);
     setHumidity(data[1]);
     setObjectDistance(data[2]);
     setObjectDetected(parseFloat(data[2]) < 20);
+
+     // Imprimir los datos recibidos en la terminal
+     console.log('Temperatura:', data[0]);
+     console.log('Humedad:', data[1]);
+     console.log('Distancia del objeto:', data[2]);
   };
 
+  /**
+   * Callback para la apertura de la conexión WebSocket.
+   * Registra en la consola que la conexión se ha abierto.
+   */
   const onOpen = () => {
     console.log("WebSocket connection opened");
   };
 
+  /**
+   * Genera un código aleatorio alfanumérico de 6 caracteres.
+   * @returns {string} - Código aleatorio generado.
+   */
   const generateRandomCode = () => {
-    return Math.floor(1000 + Math.random() * 9000);
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let code = '';
+    for (let i = 0; i < 6; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return code;
   };
 
+  /**
+   * Guarda los datos actuales en AsyncStorage y en la base de datos.
+   * Muestra una alerta en caso de éxito o error.
+   */
   const saveData = async () => {
     try {
-      const code = generateRandomCode();
+      const id = generateRandomCode(); // Genera un código único para identificar los datos
       const dataToSave = {
-        code: code,
+        id: id,
         temperature: parseFloat(temperature),
         humidity: parseFloat(humidity),
         objectDetected: objectDetected ? 'Yes' : 'No',
         objectDistance: parseFloat(objectDistance)
       };
 
-      await AsyncStorage.setItem('savedData', JSON.stringify(dataToSave));
-      await insertList(dataToSave);
-      
+      await AsyncStorage.setItem('savedData', JSON.stringify(dataToSave)); // Guarda los datos en AsyncStorage
+      await insertData(dataToSave); // Guarda los datos en la base de datos
+
       console.log('Data saved and sent to the database:', dataToSave);
       Alert.alert('Successful Save', 'Data has been saved successfully.');
 
@@ -55,14 +88,17 @@ export default function HomeScreen() {
     }
   };
 
+  /**
+   * Navega a la pantalla de lista de datos guardados.
+   */
   const viewList = () => {
-    navigation.navigate('JsonFormScreen');
+    navigation.navigate('JsonDataScreen');
   };
 
+  // Iconos para temperatura, humedad y detección de objetos
   const temperatureIcon = <FontAwesome5 name="thermometer-half" size={30} color="#333" />;
   const humidityIcon = <FontAwesome5 name="tint" size={30} color="#333" />;
   const objectIcon = <FontAwesome5 name="traffic-light" size={30} color="#333" />;
-  const distanceIcon = <FontAwesome5 name="ruler" size={30} color="#333" />;
 
   return (
     <View style={styles.container}>
@@ -102,7 +138,7 @@ export default function HomeScreen() {
       </View>
 
       <WebSocket
-        url="ws://192.168.0.111:81"
+        url="ws://192.168.0.253:81"
         onOpen={onOpen}
         onMessage={handleData}
         onError={(error) => console.log('WebSocket Error:', error)}

@@ -4,7 +4,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import HomeScreen from "./src/screens/HomeScreen.jsx";
-import JsonFormScreen from "./src/screens/JsonListScreen.jsx";
+import JsonDataScreen from "./src/screens/JsonDataScreen.jsx";
 import Footer from "./src/screens/Footer.jsx";
 
 const Stack = createNativeStackNavigator();
@@ -28,8 +28,8 @@ const App = () => {
             })}
           />
           <Stack.Screen
-            name="JsonFormScreen"
-            component={JsonFormScreen}
+            name="JsonDataScreen"
+            component={JsonDataScreen}
             options={{
               title: "List Documents",
               headerStyle: styles.headerStyle,

@@ -1,41 +1,41 @@
-const URL_API = 'https://api-sockets-ih7r.onrender.com/';
+const URL_API = 'https://api-sockets-ih7r.onrender.com';
 
-export const getLists = async () => {
-    const lists = await fetch(`${URL_API}`);
-    return await lists.json();
+export const getData = async () => {
+    const data = await fetch(URL_API);
+    return await data.json();
 }
 
-export const getOneList = async (code) => {
-    const list = await fetch(`${URL_API}/${code}`);
-    return await list.json();
+export const getOneData = async (id) => {
+    const data = await fetch(`${URL_API}/${id}`);
+    return await data.json();
 }
 
-export const insertList = async (list) => {
-    const res = await fetch(`${URL_API}`, {
+export const insertData = async (data) => {
+    const res = await fetch(URL_API, {
         method: "POST",
         headers: {
             Accept: 'application/json',
             "Content-Type": 'application/json',
         },
-        body: JSON.stringify(list)
+        body: JSON.stringify(data)
     });
     return await res.json();
 }
 
-export const updateList = async (code, updatedList) => {
-    const response = await fetch(`${URL_API}/${code}`, {
+export const updateData = async (id, updatedData) => {
+    const response = await fetch(`${URL_API}/${id}`, {
         method: "PUT", 
         headers: {
             Accept: 'application/json',
             "Content-Type": 'application/json',
         },
-        body: JSON.stringify(updatedList)
+        body: JSON.stringify(updatedData)
     });
     return await response.json();
 }
 
-export const deleteList = async (code) => {
-    const res = await fetch(`${URL_API}/delete/${code}`, {
+export const deleteData = async (id) => {
+    const res = await fetch(`${URL_API}/${id}`, {
         method: "DELETE",
         headers: {
             Accept: 'application/json',
